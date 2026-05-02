@@ -17,6 +17,17 @@ public class Grid
 		this.GridOrigin = gridOrigin;
 		this.VoxelSize = voxelSize;
 		GridData = new Node[length, height, width];
+
+		for (int i = 0; i < length; i++)
+		{
+			for (int j = 0; j < height; j++)
+			{
+				for (int k = 0; k < width; k++)
+				{
+					GridData[i, j, k] = new Node(NodeState.Unexplored);
+				}
+			}
+		}
 	}
 	
 	/// <summary>
@@ -125,12 +136,9 @@ public class Grid
 		}
 	}
 	
-#if UNITY_EDITOR
-	private void OnDrawGizmosSelected()
+	public void DrawDebugGrid()
 	{
-		if (GridData == null)
-			return;
-
+		if (GridData == null) return;
 		// Cache lossy scale for performance
 		Vector3 size = Vector3.one * VoxelSize * 0.9f; // slightly smaller than voxel to avoid overlap lines
 
@@ -150,13 +158,13 @@ public class Grid
 					{
 						NodeState.Free => new Color(0, 1, 0, 0.3f),
 						NodeState.Occupied => new Color(1, 0, 0, 0.5f),
-						_ => new Color(0.5f, 0.5f, 0.5f, 0.1f)
+						NodeState.Unexplored => new Color(0.5f, 0.5f, 0.5f, 0.1f),
+						_ => new Color(0,0,0,0)
 					};
-
+					
 					Gizmos.DrawCube(center, size);
 				}
 			}
 		}
 	}
-#endif
 }

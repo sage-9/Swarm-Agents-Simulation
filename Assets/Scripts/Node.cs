@@ -1,10 +1,11 @@
-public class Node
+public struct Node
 {
-    int X {get;set;}
-    int Y {get;set;}
-    int Z {get;set;}
-
     public NodeState NodeState;
+
+    public Node(NodeState nodeState)
+    {
+        NodeState = nodeState;
+    }
 }
 
 public enum NodeState
