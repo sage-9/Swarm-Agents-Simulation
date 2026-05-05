@@ -13,7 +13,7 @@ public abstract class BaseAgent : MonoBehaviour
     [SerializeField] protected float moveSpeed = 5f;
     [SerializeField] protected float turnSpeed = 120f;
     [SerializeField] protected float arrivalDistance = 0.5f;
-    List<Vector3> _directions = new List<Vector3>();
+    private List<Vector3> _directions = new List<Vector3>();
 
     [Header("Sensor Settings")]
     [SerializeField] protected float scanRange = 15f;
@@ -24,20 +24,10 @@ public abstract class BaseAgent : MonoBehaviour
     protected Vector3 TargetPosition;
     public enum AgentState { Idle, Searching, Guarding, Returning }
 
-    private AgentState _currentState;
-    public AgentState CurrentState
-    {
-        get => _currentState;
-        protected set
-        {
-            _currentState = value;
-            Debug.Log($"{_currentState}");
-        }
-    }
+    public AgentState CurrentState { get; protected set; }
     
     protected virtual void Start()
     {
-        Debug.Log("Awake");
         TargetPosition = transform.position;
         CurrentState = AgentState.Idle;
         Initialize();
@@ -50,9 +40,7 @@ public abstract class BaseAgent : MonoBehaviour
     /// </summary>
     public void Initialize()
     {
-        Debug.Log("Initialized");
         PersonalGrid = new Grid(WorldGridManager.DefaultGrid);
-
     }
 
     protected virtual void Update()
@@ -105,16 +93,17 @@ public abstract class BaseAgent : MonoBehaviour
 
     private void Perform3DScan()
     {
-        Debug.Log("Starting Scan");
         // Generates a spherical burst of rays to map the 3D environment
         // Uses the Fibonacci Sphere algorithm for even distribution
-        float goldenRatio = (1 + Mathf.Sqrt(5)) / 2;
+        float goldenRatio = (1f + Mathf.Sqrt(5f)) / 2f;
+        
+        _directions.Clear();
         
         for (int i = 0; i < scanResolution; i++)
         {
             float t = (float)i / scanResolution;
-            float inclination = Mathf.Acos(1 - 2 * t);
-            float azimuth = 2 * Mathf.PI * goldenRatio * i;
+            float inclination = Mathf.Acos(1f - 2f * t);
+            float azimuth = 2f * Mathf.PI * goldenRatio * i;
 
             float x = Mathf.Sin(inclination) * Mathf.Cos(azimuth);
             float y = Mathf.Sin(inclination) * Mathf.Sin(azimuth);
@@ -124,35 +113,40 @@ public abstract class BaseAgent : MonoBehaviour
             Ray ray = new Ray(transform.position, dir);
 
             // CALLING YOUR GRID CLASS LOGIC
-            PersonalGrid.UpdateRay(ray, scanRange, out Vector3 hitPoint);
+            PersonalGrid.UpdateRay(ray, scanRange, out _);
             // Secondary check: If we hit something on the Victim Layer, trigger detection
             _directions.Add(dir);
-            Debug.Log(("Direction Added"));
+            CheckForVictims(ray);
         }
-        Debug.Log("Getting Next Target");
-        GetNextDirection();
     }
 
+    // Note: If you want to keep this for basic obstacle avoidance, you should blend it 
+    // with your steering logic rather than overwriting TargetPosition.
     private void GetNextDirection()
     {
-        float directionCheck = -1;
-        Vector3 nextTarget=Vector3.zero;
+        float directionCheck = -1f;
+        Vector3 nextTarget = Vector3.zero;
+        
         foreach (Vector3 dir in _directions)
         {
             Ray ray = new Ray(transform.position, dir);
-            if(Physics.Raycast(ray)) continue;
-            if (Vector3.Dot(transform.forward, dir) > directionCheck)
+            // FIX: Added scanRange to prevent infinite distance checking
+            if (Physics.Raycast(ray, scanRange)) continue;
+            
+            float dot = Vector3.Dot(transform.forward, dir);
+            if (dot > directionCheck)
             {
-                directionCheck = Vector3.Dot(transform.forward, dir);
+                directionCheck = dot;
                 nextTarget = ray.GetPoint(scanRange);
-                
             }
         }
-        SetTarget(nextTarget);
+        
+        if (nextTarget != Vector3.zero)
+        {
+            SetTarget(nextTarget);
+        }
     }
     
-    
-
     private void CheckForVictims(Ray ray)
     {
         // Using standard Raycast for Victim detection (since NodeState.Occupied 
@@ -168,7 +162,6 @@ public abstract class BaseAgent : MonoBehaviour
 
     public virtual void SetTarget(Vector3 newTarget)
     {
-        Debug.Log("Target set");
         TargetPosition = newTarget;
         CurrentState = AgentState.Searching;
     }
@@ -178,9 +171,7 @@ public abstract class BaseAgent : MonoBehaviour
 
     public void OnDrawGizmosSelected()
     {
-        if(!enableDebugView || PersonalGrid==null) return;
+        if (!enableDebugView || PersonalGrid == null) return;
         PersonalGrid.DrawDebugGrid();
     }
 }
-
-

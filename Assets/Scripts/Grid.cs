@@ -2,20 +2,20 @@ using UnityEngine;
 
 public class Grid
 {
-	public int Length;
-	public int Width;
-	public int Height;
-	public Vector3 GridOrigin;
-	public float VoxelSize;
-	public Node[,,] GridData;
+	public int Length { get; private set; }
+	public int Width { get; private set; }
+	public int Height { get; private set; }
+	public Vector3 GridOrigin { get; private set; }
+	public float VoxelSize { get; private set; }
+	public Node[,,] GridData { get; private set; }
 	
-	public Grid(int length, int width , int height, float voxelSize, Vector3 gridOrigin)
+	public Grid(int length, int width, int height, float voxelSize, Vector3 gridOrigin)
 	{
-		this.Length = length;
-		this.Width = width;
-		this.Height = height;
-		this.GridOrigin = gridOrigin;
-		this.VoxelSize = voxelSize;
+		Length = length;
+		Width = width;
+		Height = height;
+		GridOrigin = gridOrigin;
+		VoxelSize = voxelSize;
 		GridData = new Node[length, height, width];
 
 		for (int i = 0; i < length; i++)
@@ -32,18 +32,17 @@ public class Grid
 
 	public Grid(Grid grid) : this(grid.Length, grid.Width, grid.Height, grid.VoxelSize, grid.GridOrigin)
 	{
-		
 	}
 	
 	/// <summary>
 	/// Check whether an index lies inside the grid boundaries.
 	/// </summary>
 	private bool IsInBounds(Vector3Int index)
-    	{
-    		return index.x >= 0 && index.x < Length &&
-    		       index.y >= 0 && index.y < Height  &&
-    		       index.z >= 0 && index.z < Width;
-    	}
+    {
+    	return index.x >= 0 && index.x < Length &&
+    	       index.y >= 0 && index.y < Height &&
+    	       index.z >= 0 && index.z < Width;
+    }
 	
 	/// <summary>
 	/// Convert a world position to the corresponding integer grid index.
@@ -128,7 +127,7 @@ public class Grid
 			if (travelled + step >= distToHit)
 			{
 				// This is the final voxel before the hit point: mark as Occupied.
-				SetVoxel(idx, somethingHit?NodeState.Occupied:NodeState.Free);
+				SetVoxel(idx, somethingHit ? NodeState.Occupied : NodeState.Free);
 				break;
 			}
 			else
@@ -167,7 +166,7 @@ public class Grid
 						NodeState.Free => new Color(0, 1, 0, 0.3f),
 						NodeState.Occupied => new Color(1, 0, 0, 0.5f),
 						NodeState.Unexplored => new Color(0.5f, 0.5f, 0.5f, 0.1f),
-						_ => new Color(0,0,0,0)
+						_ => new Color(0, 0, 0, 0)
 					};
 					
 					Gizmos.DrawCube(center, size);
