@@ -29,6 +29,11 @@ public class Grid
 			}
 		}
 	}
+
+	public Grid(Grid grid) : this(grid.Length, grid.Width, grid.Height, grid.VoxelSize, grid.GridOrigin)
+	{
+		
+	}
 	
 	/// <summary>
 	/// Check whether an index lies inside the grid boundaries.
@@ -123,7 +128,7 @@ public class Grid
 			if (travelled + step >= distToHit)
 			{
 				// This is the final voxel before the hit point: mark as Occupied.
-				SetVoxel(idx, NodeState.Occupied);
+				SetVoxel(idx, somethingHit?NodeState.Occupied:NodeState.Free);
 				break;
 			}
 			else
@@ -136,6 +141,9 @@ public class Grid
 		}
 	}
 	
+	///<summary>
+	/// Draws a Debug view of 3d grid showing which voxels are Explored or Occupied
+	///</summary>
 	public void DrawDebugGrid()
 	{
 		if (GridData == null) return;
@@ -166,5 +174,23 @@ public class Grid
 				}
 			}
 		}
+	 }
+}
+
+public struct Node
+{
+	public NodeState NodeState;
+
+	public Node(NodeState nodeState)
+	{
+		NodeState = nodeState;
 	}
+}
+
+public enum NodeState
+{
+	Unknown,
+	Unexplored,
+	Occupied,
+	Free
 }

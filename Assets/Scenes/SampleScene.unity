@@ -382,7 +382,7 @@ GameObject:
   - component: {fileID: 407765467}
   m_Layer: 0
   m_Name: Victim
-  m_TagString: Untagged
+  m_TagString: Victim
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -658,6 +658,54 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1277983448
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1277983450}
+  - component: {fileID: 1277983449}
+  m_Layer: 0
+  m_Name: Drone Spawn Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1277983449
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1277983448}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc6f71daf4784be9b9181bfe2abd5c95, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AgentSpawnManager
+  numberOfScoutDrones: 1
+  numberOfRescueDrones: 0
+  numberOfRelayDrones: 0
+  scoutDronePrefab: {fileID: 3675125263801247610, guid: d1492fcdedc6d9d4a88aa623b27d0991, type: 3}
+--- !u!4 &1277983450
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1277983448}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: 45, y: 2, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!1 &1669327303
 GameObject:
   m_ObjectHideFlags: 0
@@ -687,11 +735,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 12cbedc0f06143cdb7490a21d41cf57c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WorldGridManager
-  length: 100
-  width: 100
+  length: 200
+  width: 200
   height: 10
   gridOrigin: {fileID: 1669327305}
-  voxelSize: 1
+  voxelSize: 0.5
+  drawDebug: 0
 --- !u!4 &1669327305
 Transform:
   m_ObjectHideFlags: 0
@@ -717,3 +766,4 @@ SceneRoots:
   - {fileID: 256184335}
   - {fileID: 407765470}
   - {fileID: 1669327305}
+  - {fileID: 1277983450}

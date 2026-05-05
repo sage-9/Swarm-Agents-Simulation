@@ -8,6 +8,7 @@ public class WorldGridManager : MonoBehaviour
     [SerializeField] private int height;
     [SerializeField] private Transform gridOrigin;
     [SerializeField] private float voxelSize;
+    [SerializeField] private bool drawDebug;
     
     public static Grid DefaultGrid {get; private set;}
     public static Grid WorldGrid;
@@ -22,7 +23,7 @@ public class WorldGridManager : MonoBehaviour
 
     void OnDrawGizmosSelected()
     {
-        if (WorldGrid == null) return;
+        if (WorldGrid == null || !drawDebug ) return;
         WorldGrid.DrawDebugGrid();
     }
 }
