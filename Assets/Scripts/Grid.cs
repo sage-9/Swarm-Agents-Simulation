@@ -156,7 +156,7 @@ public class Grid
 				for (int z = 0; z < Width; z++)
 				{
 					NodeState state = GridData[x, y, z].NodeState;
-					if (state == NodeState.Unknown)
+					if (state == NodeState.Unknown||state == NodeState.Unexplored)
 						continue; // optionally draw unknown as transparent
 
 					Vector3 center = GridToWorld(new Vector3Int(x, y, z));
@@ -165,15 +165,13 @@ public class Grid
 					{
 						NodeState.Free => new Color(0, 1, 0, 0.3f),
 						NodeState.Occupied => new Color(1, 0, 0, 0.5f),
-						NodeState.Unexplored => new Color(0.5f, 0.5f, 0.5f, 0.1f),
 						_ => new Color(0, 0, 0, 0)
 					};
-					
 					Gizmos.DrawCube(center, size);
 				}
 			}
 		}
-	 }
+	}
 }
 
 public struct Node

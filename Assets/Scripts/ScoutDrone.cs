@@ -4,10 +4,16 @@ using UnityEngine;
 public class ScoutDrone : BaseAgent
 {
     [Header("Exploration Settings")]
-    [SerializeField] private float frontierSearchRadius = 20f;
+    [SerializeField] private float frontierSearchRadius = 50f;
     [SerializeField] private int searchStep = 2; // Optimization: don't check every single voxel
     
     private bool _isSearchingForFrontier = false;
+    
+    protected override void Start()
+    {
+        base.Start();
+        StartCoroutine(FindNextFrontier());
+    }
 
 
     protected override void OnTargetReached()
@@ -52,6 +58,8 @@ public class ScoutDrone : BaseAgent
         int maxY = Mathf.Min(PersonalGrid.Height, currentIdx.y + range);
         int minZ = Mathf.Max(0, currentIdx.z - range);
         int maxZ = Mathf.Min(PersonalGrid.Width, currentIdx.z + range);
+        
+        float minTargetDist = PersonalGrid.VoxelSize * 1.1f;
 
         // Iterate through the grid within the search range
         for (int x = minX; x < maxX; x += searchStep)
@@ -63,23 +71,23 @@ public class ScoutDrone : BaseAgent
                     Vector3Int checkIdx = new Vector3Int(x, y, z);
                     
                     // 1. Check if node is Free
-                    if (PersonalGrid.GetVoxel(checkIdx) == NodeState.Free)
+                    if (PersonalGrid.GetVoxel(checkIdx) != NodeState.Free) continue;
+                    // 2. Check if it's a frontier (has unexplored neighbors)
+                    if (!IsFrontierNode(checkIdx))continue;
+                    
+                    float dist = Vector3.SqrMagnitude(transform.position - PersonalGrid.GridToWorld(checkIdx));
+                    if (dist < minTargetDist)continue;
+                    if (dist < closestDistance)
                     {
-                        // 2. Check if it's a frontier (has unexplored neighbors)
-                        if (IsFrontierNode(checkIdx))
-                        {
-                            float dist = Vector3.SqrMagnitude(transform.position - PersonalGrid.GridToWorld(checkIdx));
-                            if (dist < closestDistance)
-                            {
-                                closestDistance = dist;
-                                bestNodeIndex = checkIdx;
-                            }
-                        }
+                        closestDistance = dist;
+                        bestNodeIndex = checkIdx;
                     }
+                    
                 }
+                
             }
             // Yield every X rows to prevent frame spikes in your Unity Editor
-            if (x % 5 == 0) yield return null;
+            if (x % 5 == 0) yield return null;  
         }
 
         if (bestNodeIndex != -Vector3Int.one)
@@ -107,14 +115,8 @@ public class ScoutDrone : BaseAgent
 
         foreach (var n in neighbors)
         {
-            // Ensure neighbor is within grid bounds before checking state
-            if (n.x >= 0 && n.x < PersonalGrid.Length &&
-                n.y >= 0 && n.y < PersonalGrid.Height &&
-                n.z >= 0 && n.z < PersonalGrid.Width)
-            {
-                if (PersonalGrid.GetVoxel(n) == NodeState.Unexplored)
-                    return true;
-            }
+            if (PersonalGrid.GetVoxel(n) == NodeState.Unexplored)
+                return true;
         }
         return false;
     }

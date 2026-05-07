@@ -5,7 +5,7 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public abstract class BaseAgent : MonoBehaviour
 { 
-    [Header("References")]
+    [Header("Debug")]
     protected Grid PersonalGrid;
     [SerializeField] private bool enableDebugView;
 
@@ -24,8 +24,10 @@ public abstract class BaseAgent : MonoBehaviour
     protected Vector3 TargetPosition;
     public enum AgentState { Idle, Searching, Guarding, Returning }
 
-    public AgentState CurrentState { get; protected set; }
-    
+    private AgentState _currentState;
+
+    public AgentState CurrentState { get; set; }
+
     protected virtual void Start()
     {
         TargetPosition = transform.position;
@@ -117,33 +119,6 @@ public abstract class BaseAgent : MonoBehaviour
             // Secondary check: If we hit something on the Victim Layer, trigger detection
             _directions.Add(dir);
             CheckForVictims(ray);
-        }
-    }
-
-    // Note: If you want to keep this for basic obstacle avoidance, you should blend it 
-    // with your steering logic rather than overwriting TargetPosition.
-    private void GetNextDirection()
-    {
-        float directionCheck = -1f;
-        Vector3 nextTarget = Vector3.zero;
-        
-        foreach (Vector3 dir in _directions)
-        {
-            Ray ray = new Ray(transform.position, dir);
-            // FIX: Added scanRange to prevent infinite distance checking
-            if (Physics.Raycast(ray, scanRange)) continue;
-            
-            float dot = Vector3.Dot(transform.forward, dir);
-            if (dot > directionCheck)
-            {
-                directionCheck = dot;
-                nextTarget = ray.GetPoint(scanRange);
-            }
-        }
-        
-        if (nextTarget != Vector3.zero)
-        {
-            SetTarget(nextTarget);
         }
     }
     

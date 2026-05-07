@@ -17,7 +17,7 @@ public class WorldGridManager : MonoBehaviour
     {
         Vector3 originPos = gridOrigin != null ? gridOrigin.position : Vector3.zero;
         DefaultGrid = new Grid(length, width, height, voxelSize, originPos);
-        WorldGrid = DefaultGrid;
+        WorldGrid = new Grid(DefaultGrid);
     }
 
     void OnDrawGizmosSelected()
