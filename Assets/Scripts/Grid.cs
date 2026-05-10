@@ -24,7 +24,7 @@ public class Grid
 			{
 				for (int k = 0; k < width; k++)
 				{
-					GridData[i, j, k] = new Node(NodeState.Unexplored);
+					GridData[i, j, k] = new Node(NodeState.Unexplored, 0f);
 				}
 			}
 		}
@@ -78,6 +78,7 @@ public class Grid
 	{
 		if (!IsInBounds(index)) return;
 		GridData[index.x, index.y, index.z].NodeState = state;
+		GridData[index.x, index.y, index.z].LastUpdatedTime = Time.time;
 	}
 	
 	/// <summary>
@@ -139,6 +140,37 @@ public class Grid
 			travelled += step;
 		}
 	}
+
+    /// <summary>
+    /// Merges another Grid into this one by taking the most recently updated voxels.
+    /// Both Grids must have the same dimensions.
+    /// </summary>
+    public void MergeGrid(Grid otherGrid)
+    {
+        if (Length != otherGrid.Length || Width != otherGrid.Width || Height != otherGrid.Height)
+        {
+            Debug.LogError("Cannot merge grids of different dimensions!");
+            return;
+        }
+
+        for (int x = 0; x < Length; x++)
+        {
+            for (int y = 0; y < Height; y++)
+            {
+                for (int z = 0; z < Width; z++)
+                {
+                    Node otherNode = otherGrid.GridData[x, y, z];
+                    Node thisNode = GridData[x, y, z];
+
+                    // Take the voxel state that was updated most recently
+                    if (otherNode.LastUpdatedTime > thisNode.LastUpdatedTime && otherNode.NodeState != NodeState.Unexplored)
+                    {
+                        GridData[x, y, z] = otherNode;
+                    }
+                }
+            }
+        }
+    }
 	
 	///<summary>
 	/// Draws a Debug view of 3d grid showing which voxels are Explored or Occupied
@@ -156,7 +188,7 @@ public class Grid
 				for (int z = 0; z < Width; z++)
 				{
 					NodeState state = GridData[x, y, z].NodeState;
-					if (state == NodeState.Unknown||state == NodeState.Unexplored)
+					if (state == NodeState.Unknown || state == NodeState.Unexplored)
 						continue; // optionally draw unknown as transparent
 
 					Vector3 center = GridToWorld(new Vector3Int(x, y, z));
@@ -177,10 +209,12 @@ public class Grid
 public struct Node
 {
 	public NodeState NodeState;
+    public float LastUpdatedTime;
 
-	public Node(NodeState nodeState)
+	public Node(NodeState nodeState, float lastUpdatedTime)
 	{
 		NodeState = nodeState;
+        LastUpdatedTime = lastUpdatedTime;
 	}
 }
 
