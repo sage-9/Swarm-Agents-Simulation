@@ -162,10 +162,14 @@ public class Grid
                     Node otherNode = otherGrid.GridData[x, y, z];
                     Node thisNode = GridData[x, y, z];
 
-                    // Take the voxel state that was updated most recently
-                    if (otherNode.LastUpdatedTime > thisNode.LastUpdatedTime && otherNode.NodeState != NodeState.Unexplored)
+                    // Only consider merging if the other node actually contains mapped data
+                    if (otherNode.NodeState == NodeState.Free || otherNode.NodeState == NodeState.Occupied)
                     {
-                        GridData[x, y, z] = otherNode;
+                        // Adopt the other node if we haven't explored this voxel yet, OR if their data is newer
+                        if (thisNode.NodeState == NodeState.Unexplored || otherNode.LastUpdatedTime > thisNode.LastUpdatedTime)
+                        {
+                            GridData[x, y, z] = otherNode;
+                        }
                     }
                 }
             }
