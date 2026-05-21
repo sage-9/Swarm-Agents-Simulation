@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(Collider))]
 public abstract class BaseAgent : MonoBehaviour
-{ 
+{
     [Header("Debug")]
     public Grid PersonalGrid { get; protected set; } // Made public so other agents can access it for merging
     [SerializeField] private bool enableDebugView;
@@ -13,9 +14,15 @@ public abstract class BaseAgent : MonoBehaviour
     [SerializeField] protected float moveSpeed = 5f;
     [SerializeField] protected float turnSpeed = 120f;
     [SerializeField] protected float arrivalDistance = 0.5f;
+
+    [Header("Obstacle Avoidance Settings")]
+    [SerializeField] protected float avoidanceRadius = 3f;
+    [SerializeField] protected float avoidanceWeight = 2f;
     [SerializeField] protected float separationRadius = 2f; // Distance they try to keep from each other
     [SerializeField] protected float separationWeight = 1.5f; // How strongly they push away from each other
-    private List<Vector3> _directions = new List<Vector3>();
+    [SerializeField] protected float physicsAvoidanceWeight = 3f; // Force to apply when physically near a wall
+
+    // Remove _directions as it's no longer used for reactive movement
 
     [Header("Sensor Settings")]
     [SerializeField] protected float scanRange = 15f;
@@ -31,17 +38,25 @@ public abstract class BaseAgent : MonoBehaviour
     protected Vector3 TargetPosition;
     public enum AgentState { Idle, Searching, Guarding, Returning }
     public AgentState CurrentState { get; protected set; }
-    
+
     // Maintain a list of all active agents to scan against
-    private static List<BaseAgent> allAgents = new List<BaseAgent>();
+    private static List<BaseAgent> _allAgents = new List<BaseAgent>();
+
+    public static List<BaseAgent> GetAllAgents() => _allAgents;
+
+    private Rigidbody _rb;
 
     protected virtual void Start()
     {
         TargetPosition = transform.position;
         CurrentState = AgentState.Idle;
+
+        _rb = GetComponent<Rigidbody>();
+        _rb.isKinematic = true; // Use kinematic so we can control movement manually but still detect physics overlaps
+
         Initialize();
-        
-        allAgents.Add(this);
+
+        _allAgents.Add(this);
 
         // Start routines
         StartCoroutine(ScanningRoutine());
@@ -50,17 +65,17 @@ public abstract class BaseAgent : MonoBehaviour
 
     protected virtual void OnDestroy()
     {
-        allAgents.Remove(this);
+        _allAgents.Remove(this);
     }
 
     protected virtual void Update()
     {
-        if (CurrentState == AgentState.Idle || PersonalGrid == null) return;
+        if (CurrentState == AgentState.Idle) return;
 
         HandleMovement();
         HandleRotation();
     }
-    
+
     /// <summary>
     /// Creates a blank Unexplored Grid with right Dimensions.
     /// </summary>
@@ -69,7 +84,7 @@ public abstract class BaseAgent : MonoBehaviour
         PersonalGrid = new Grid(WorldGridManager.DefaultGrid);
     }
 
-    private void HandleMovement()
+    protected virtual void HandleMovement()
     {
         float distance = Vector3.Distance(transform.position, TargetPosition);
 
@@ -77,22 +92,24 @@ public abstract class BaseAgent : MonoBehaviour
         {
             // 1. Calculate direction to the target
             Vector3 targetDirection = (TargetPosition - transform.position).normalized;
-            
-            // 2. Calculate separation from nearby agents
-            Vector3 separationForce = Vector3.zero;
-            foreach (BaseAgent other in allAgents)
-            {
-                if (other == this || other == null) continue;
-                float distToOther = Vector3.Distance(transform.position, other.transform.position);
-                if (distToOther < separationRadius && distToOther > 0.01f)
-                {
-                    separationForce += (transform.position - other.transform.position).normalized / distToOther;
-                }
-            }
-            
-            // 3. Combine directions and move
-            Vector3 finalDirection = (targetDirection + (separationForce * separationWeight)).normalized;
-            transform.position += finalDirection * moveSpeed * Time.deltaTime;
+
+            // 2. Calculate static obstacle avoidance force based on grid data
+            Vector3 obstacleAvoidanceForce = CalculateObstacleAvoidance();
+
+            // 3. Calculate dynamic separation from nearby agents
+            Vector3 separationForce = CalculateAgentSeparation();
+
+            // 4. Calculate immediate physics avoidance (in case it sneaks past grid mapping)
+            Vector3 physicsAvoidance = CalculateImmediatePhysicsAvoidance();
+
+            // 5. Combine directions and move
+            Vector3 finalDirection = (targetDirection +
+                                     (obstacleAvoidanceForce * avoidanceWeight) +
+                                     (separationForce * separationWeight) +
+                                     (physicsAvoidance * physicsAvoidanceWeight)).normalized;
+
+            // Simple Kinematic Move
+            transform.position += finalDirection * (moveSpeed * Time.deltaTime);
         }
         else
         {
@@ -100,7 +117,88 @@ public abstract class BaseAgent : MonoBehaviour
         }
     }
 
-    private void HandleRotation()
+    /// <summary>
+    /// Does a small physics sphere cast right in front of the drone to push it back if it's about to clip a wall
+    /// that its grid hasn't mapped yet.
+    /// </summary>
+    protected Vector3 CalculateImmediatePhysicsAvoidance()
+    {
+        Vector3 avoidanceForce = Vector3.zero;
+
+        // Check a small sphere around the drone's center
+        Collider[] hits = Physics.OverlapSphere(transform.position, avoidanceRadius * 0.5f, obstacleLayerMask);
+
+        foreach (Collider hit in hits)
+        {
+            // Push away from the closest point on the collider
+            Vector3 closestPoint = hit.ClosestPoint(transform.position);
+            float dist = Vector3.Distance(transform.position, closestPoint);
+
+            if (dist < 0.01f) dist = 0.01f; // prevent division by zero
+
+            avoidanceForce += (transform.position - closestPoint).normalized / dist;
+        }
+
+        return avoidanceForce;
+    }
+
+    /// <summary>
+    /// Queries the agent's personal voxel grid for nearby occupied nodes to push away from them.
+    /// </summary>
+    protected Vector3 CalculateObstacleAvoidance()
+    {
+        Vector3 avoidanceForce = Vector3.zero;
+
+        if (PersonalGrid == null) return avoidanceForce;
+
+        // Find grid index of current position
+        if (PersonalGrid.WorldToGrid(transform.position, out Vector3Int currentIdx))
+        {
+            int checkRange = Mathf.CeilToInt(avoidanceRadius / PersonalGrid.VoxelSize);
+
+            // Iterate local neighborhood
+            for (int x = currentIdx.x - checkRange; x <= currentIdx.x + checkRange; x++)
+            {
+                for (int y = currentIdx.y - checkRange; y <= currentIdx.y + checkRange; y++)
+                {
+                    for (int z = currentIdx.z - checkRange; z <= currentIdx.z + checkRange; z++)
+                    {
+                        Vector3Int checkIdx = new Vector3Int(x, y, z);
+                        if (PersonalGrid.GetVoxel(checkIdx) == NodeState.Occupied)
+                        {
+                            Vector3 obstacleWorldPos = PersonalGrid.GridToWorld(checkIdx);
+                            float distToObstacle = Vector3.Distance(transform.position, obstacleWorldPos);
+
+                            // Only push if it's within the radius
+                            if (distToObstacle < avoidanceRadius && distToObstacle > 0.01f)
+                            {
+                                // The closer the obstacle, the stronger the push
+                                avoidanceForce += (transform.position - obstacleWorldPos).normalized * (1.0f - (distToObstacle / avoidanceRadius));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return avoidanceForce;
+    }
+
+    protected Vector3 CalculateAgentSeparation()
+    {
+        Vector3 separationForce = Vector3.zero;
+        foreach (BaseAgent other in _allAgents)
+        {
+            if (other == this || other == null) continue;
+            float distToOther = Vector3.Distance(transform.position, other.transform.position);
+            if (distToOther < separationRadius && distToOther > 0.01f)
+            {
+                separationForce += (transform.position - other.transform.position).normalized * (1.0f - (distToOther / separationRadius));
+            }
+        }
+        return separationForce;
+    }
+
+    protected virtual void HandleRotation()
     {
         Vector3 direction = (TargetPosition - transform.position).normalized;
         if (direction != Vector3.zero)
@@ -130,9 +228,7 @@ public abstract class BaseAgent : MonoBehaviour
         // Generates a spherical burst of rays to map the 3D environment
         // Uses the Fibonacci Sphere algorithm for even distribution
         float goldenRatio = (1f + Mathf.Sqrt(5f)) / 2f;
-        
-        _directions.Clear();
-        
+
         for (int i = 0; i < scanResolution; i++)
         {
             float t = (float)i / scanResolution;
@@ -147,13 +243,13 @@ public abstract class BaseAgent : MonoBehaviour
             Ray ray = new Ray(transform.position, dir);
 
             // CALLING YOUR GRID CLASS LOGIC
-            PersonalGrid.UpdateRay(ray, scanRange, out _);
+            PersonalGrid.UpdateRay(ray, scanRange, obstacleLayerMask, out _);
+
             // Secondary check: If we hit something on the Victim Layer, trigger detection
-            _directions.Add(dir);
             CheckForVictims(ray);
         }
     }
-    
+
     private void CheckForVictims(Ray ray)
     {
         // Using standard Raycast for Victim detection (since NodeState.Occupied 
@@ -184,7 +280,7 @@ public abstract class BaseAgent : MonoBehaviour
 
     private void ShareGridDataWithNearbyAgents()
     {
-        foreach (BaseAgent otherAgent in allAgents)
+        foreach (BaseAgent otherAgent in _allAgents)
         {
             if (otherAgent == this || otherAgent == null || otherAgent.PersonalGrid == null) continue;
 
@@ -193,7 +289,7 @@ public abstract class BaseAgent : MonoBehaviour
             {
                 // Check Line of Sight
                 Vector3 direction = (otherAgent.transform.position - transform.position).normalized;
-                
+
                 // Raycast to check if an obstacle is between them
                 if (!Physics.Raycast(transform.position, direction, distance, obstacleLayerMask))
                 {

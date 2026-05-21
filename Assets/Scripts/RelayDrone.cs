@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class RelayDrone : BaseAgent
@@ -9,14 +10,15 @@ public class RelayDrone : BaseAgent
     [SerializeField] private float idealDistanceToOtherAgents = 30f;
 
     [Header("Base Reference")]
-    [SerializeField] private Transform baseStation; // Set this in the inspector, or let it be the spawn point
+    public Transform baseStation; // Set this in the inspector, or let it be the spawn point
 
     private Vector3 _startPosition;
 
     protected override void Start()
     {
         base.Start();
-        
+
+        // Use the base station location assigned by the Spawner, or default to its current spawn location
         _startPosition = baseStation != null ? baseStation.position : transform.position;
 
         // Relay drones move strategically, so they need a specialized routine to find optimal positions
@@ -47,7 +49,7 @@ public class RelayDrone : BaseAgent
             if (CurrentState == AgentState.Idle || CurrentState == AgentState.Guarding)
             {
                 Vector3 newPosition = FindBestRelayPoint();
-                
+
                 // Only move if the new position is significantly better/different to prevent jittering
                 if (Vector3.Distance(transform.position, newPosition) > 5f)
                 {
@@ -64,13 +66,12 @@ public class RelayDrone : BaseAgent
     /// </summary>
     private Vector3 FindBestRelayPoint()
     {
-        // For a basic implementation, the Relay tries to find a spot that is:
-        // 1. Towards the furthest scout
-        // 2. Within communication range of the base station
-        
-        // Let's find all active ScoutDrones
-        ScoutDrone[] scouts = FindObjectsByType<ScoutDrone>();
-        
+        // Get all active scout drones from the agent list
+        var scouts = BaseAgent.GetAllAgents()
+            .Where(a => a is ScoutDrone)
+            .Cast<ScoutDrone>()
+            .ToArray();
+
         if (scouts.Length == 0) return transform.position; // No scouts, stay put
 
         // Find the "center of mass" of all scouts
@@ -83,11 +84,11 @@ public class RelayDrone : BaseAgent
 
         // Determine a point on the line between the base station and the scouts
         Vector3 directionToBase = (_startPosition - averageScoutPos).normalized;
-        
+
         // We want to be closer to the scouts, but still within range of the base station
         // For simplicity, let's place the relay halfway between the average scout position and the base,
         // but clamped to the maximum communication range from the base.
-        
+
         float distanceToBase = Vector3.Distance(_startPosition, averageScoutPos);
         float targetDistance = Mathf.Min(distanceToBase * 0.5f, idealDistanceToBase);
 

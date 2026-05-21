@@ -753,7 +753,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 32.97, y: 7, z: -12}
-  m_LocalScale: {x: 81.944, y: 17.094, z: 3.1654}
+  m_LocalScale: {x: 81.944, y: 17.094, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 470501372}
@@ -1124,8 +1124,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AgentSpawnManager
   numberOfScoutDrones: 5
-  numberOfRescueDrones: 7
-  numberOfRelayDrones: 3
+  numberOfRescueDrones: 0
+  numberOfRelayDrones: 0
   spawnInterval: 3
   scoutDronePrefab: {fileID: 3675125263801247610, guid: d1492fcdedc6d9d4a88aa623b27d0991, type: 3}
   rescuerDronePrefab: {fileID: 3675125263801247610, guid: 260d96efafdec47479eee8b0d6f4748d, type: 3}

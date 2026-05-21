@@ -8,7 +8,7 @@ public class Grid
 	public Vector3 GridOrigin { get; private set; }
 	public float VoxelSize { get; private set; }
 	public Node[,,] GridData { get; private set; }
-	
+
 	public Grid(int length, int width, int height, float voxelSize, Vector3 gridOrigin)
 	{
 		Length = length;
@@ -33,17 +33,17 @@ public class Grid
 	public Grid(Grid grid) : this(grid.Length, grid.Width, grid.Height, grid.VoxelSize, grid.GridOrigin)
 	{
 	}
-	
+
 	/// <summary>
 	/// Check whether an index lies inside the grid boundaries.
 	/// </summary>
 	private bool IsInBounds(Vector3Int index)
-    {
-    	return index.x >= 0 && index.x < Length &&
-    	       index.y >= 0 && index.y < Height &&
-    	       index.z >= 0 && index.z < Width;
-    }
-	
+	{
+		return index.x >= 0 && index.x < Length &&
+			   index.y >= 0 && index.y < Height &&
+			   index.z >= 0 && index.z < Width;
+	}
+
 	/// <summary>
 	/// Convert a world position to the corresponding integer grid index.
 	/// Returns false if the point lies outside the grid.
@@ -58,7 +58,7 @@ public class Grid
 		);
 		return IsInBounds(index);
 	}
-	
+
 	/// <summary>
 	/// Convert an integer grid index to the world position of the voxel's center.
 	/// </summary>
@@ -70,7 +70,7 @@ public class Grid
 			(index.z + 0.5f) * VoxelSize
 		);
 	}
-	
+
 	/// <summary>
 	/// Set the state of a voxel by its index.
 	/// </summary>
@@ -80,7 +80,7 @@ public class Grid
 		GridData[index.x, index.y, index.z].NodeState = state;
 		GridData[index.x, index.y, index.z].LastUpdatedTime = Time.time;
 	}
-	
+
 	/// <summary>
 	/// Get the state of a voxel by its index.
 	/// Returns Unknown if the index is out of bounds.
@@ -90,7 +90,7 @@ public class Grid
 		if (!IsInBounds(index)) return NodeState.Unknown;
 		return GridData[index.x, index.y, index.z].NodeState;
 	}
-	
+
 	/// <summary>
 	/// Overload to set a voxel using a world position.
 	/// </summary>
@@ -99,7 +99,7 @@ public class Grid
 		if (WorldToGrid(worldPos, out Vector3Int idx))
 			SetVoxel(idx, state);
 	}
-	
+
 	/// <summary>
 	/// Marks all voxels along a ray as Free, and the voxel at the hit point as Occupied.
 	/// This simulates a typical LiDAR beam.
@@ -107,75 +107,92 @@ public class Grid
 	/// <param name="ray">The sensor ray (origin and direction).</param>
 	/// <param name="maxDistance">Maximum range of the sensor.</param>
 	/// <param name="hitPoint">Output the hit point if something was hit, otherwise max range point.</param>
-	public void UpdateRay(Ray ray, float maxDistance, out Vector3 hitPoint)
+	public void UpdateRay(Ray ray, float maxDistance, LayerMask obstacleMask, out Vector3 hitPoint)
 	{
-		// Perform a raycast against a simple collider or assume open space.
-		bool somethingHit = Physics.Raycast(ray, out RaycastHit hitInfo, maxDistance);
+		bool somethingHit = Physics.Raycast(ray, out RaycastHit hitInfo, maxDistance, obstacleMask);
 		hitPoint = somethingHit ? hitInfo.point : ray.GetPoint(maxDistance);
 
 		Vector3 origin = ray.origin;
 		Vector3 direction = ray.direction;
-		float step = VoxelSize * 0.5f; // marching step (smaller than voxel for coverage)
+		float step = VoxelSize * 0.5f;
 		float travelled = 0f;
 
-		while (travelled < maxDistance)
+		if (somethingHit)
 		{
-			Vector3 currentPos = origin + direction * travelled;
-			if (!WorldToGrid(currentPos, out Vector3Int idx))
-				break;
-
+			// Mark all voxels along the ray up to the hit point as Free
 			float distToHit = Vector3.Distance(origin, hitPoint);
-			if (travelled + step >= distToHit)
+			while (travelled < distToHit)
 			{
-				// This is the final voxel before the hit point: mark as Occupied.
-				SetVoxel(idx, somethingHit ? NodeState.Occupied : NodeState.Free);
-				break;
-			}
-			else
-			{
-				// Voxel is traversed freely.
-				SetVoxel(idx, NodeState.Free);
+				Vector3 currentPos = origin + direction * travelled;
+				if (!WorldToGrid(currentPos, out Vector3Int idx))
+					break;
+
+				if (GetVoxel(idx) != NodeState.Occupied)
+				{
+					SetVoxel(idx, NodeState.Free);
+				}
+				travelled += step;
 			}
 
-			travelled += step;
+			// Mark the hit point as Occupied
+			if (WorldToGrid(hitPoint, out Vector3Int hitIdx))
+			{
+				SetVoxel(hitIdx, NodeState.Occupied);
+			}
+		}
+		else
+		{
+			// No hit: mark all voxels along the ray to max distance as Free
+			while (travelled < maxDistance)
+			{
+				Vector3 currentPos = origin + direction * travelled;
+				if (!WorldToGrid(currentPos, out Vector3Int idx))
+					break;
+
+				if (GetVoxel(idx) != NodeState.Occupied)
+				{
+					SetVoxel(idx, NodeState.Free);
+				}
+				travelled += step;
+			}
 		}
 	}
 
-    /// <summary>
-    /// Merges another Grid into this one by taking the most recently updated voxels.
-    /// Both Grids must have the same dimensions.
-    /// </summary>
-    public void MergeGrid(Grid otherGrid)
-    {
-        if (Length != otherGrid.Length || Width != otherGrid.Width || Height != otherGrid.Height)
-        {
-            Debug.LogError("Cannot merge grids of different dimensions!");
-            return;
-        }
+	/// <summary>
+	/// Merges another Grid into this one by taking the most recently updated voxels.
+	/// Both Grids must have the same dimensions.
+	/// </summary>
+	public void MergeGrid(Grid otherGrid)
+	{
+		if (Length != otherGrid.Length || Width != otherGrid.Width || Height != otherGrid.Height)
+		{
+			Debug.LogError("Cannot merge grids of different dimensions!");
+			return;
+		}
 
-        for (int x = 0; x < Length; x++)
-        {
-            for (int y = 0; y < Height; y++)
-            {
-                for (int z = 0; z < Width; z++)
-                {
-                    Node otherNode = otherGrid.GridData[x, y, z];
-                    Node thisNode = GridData[x, y, z];
+		for (int x = 0; x < Length; x++)
+		{
+			for (int y = 0; y < Height; y++)
+			{
+				for (int z = 0; z < Width; z++)
+				{
+					Node otherNode = otherGrid.GridData[x, y, z];
+					Node thisNode = GridData[x, y, z];
 
-                    // Only consider merging if the other node actually contains mapped data
-                    if (otherNode.NodeState == NodeState.Free || otherNode.NodeState == NodeState.Occupied)
-                    {
-                        // Adopt the other node if we haven't explored this voxel yet, OR if their data is newer
-                        if (thisNode.NodeState == NodeState.Unexplored || otherNode.LastUpdatedTime > thisNode.LastUpdatedTime)
-                        {
-                            GridData[x, y, z] = otherNode;
-                        }
-                    }
-                }
-            }
-        }
-    }
-	
+					// Only consider merging if the other node actually contains mapped data
+					if (otherNode.NodeState == NodeState.Free || otherNode.NodeState == NodeState.Occupied)
+					{
+						// Adopt the other node if we haven't explored this voxel yet, OR if their data is newer
+						if (thisNode.NodeState == NodeState.Unexplored || otherNode.LastUpdatedTime > thisNode.LastUpdatedTime)
+						{
+							GridData[x, y, z] = otherNode;
+						}
+					}
+				}
+			}
+		}
+	}
+
 	///<summary>
 	/// Draws a Debug view of 3d grid showing which voxels are Explored or Occupied
 	///</summary>
@@ -213,12 +230,12 @@ public class Grid
 public struct Node
 {
 	public NodeState NodeState;
-    public float LastUpdatedTime;
+	public float LastUpdatedTime;
 
 	public Node(NodeState nodeState, float lastUpdatedTime)
 	{
 		NodeState = nodeState;
-        LastUpdatedTime = lastUpdatedTime;
+		LastUpdatedTime = lastUpdatedTime;
 	}
 }
 

@@ -12,10 +12,10 @@ GameObject:
   - component: {fileID: 2514078768820464192}
   - component: {fileID: 3024614207177521778}
   - component: {fileID: 1576157938407517338}
-  - component: {fileID: 2961467234315827321}
-  - component: {fileID: 4321006630430270138}
+  - component: {fileID: 5503328665016989834}
+  - component: {fileID: 846682181501455669}
   m_Layer: 0
-  m_Name: Drone
+  m_Name: Rescuer Drone
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -30,7 +30,7 @@ Transform:
   m_GameObject: {fileID: 3675125263801247610}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.862, y: 1.836, z: -0.00634}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -69,7 +69,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: d7c36a9fece13e74a922d1146604a655, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -114,7 +114,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!54 &2961467234315827321
+--- !u!54 &5503328665016989834
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -141,7 +141,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &4321006630430270138
+--- !u!114 &846682181501455669
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -150,15 +150,25 @@ MonoBehaviour:
   m_GameObject: {fileID: 3675125263801247610}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c103804f38e2411cbd35f66b0a21827c, type: 3}
+  m_Script: {fileID: 11500000, guid: b2072ce4e68d89a4398236fdbe890410, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ScoutDrone
+  m_EditorClassIdentifier: Assembly-CSharp::RescuerDrone
   enableDebugView: 0
   moveSpeed: 5
   turnSpeed: 120
   arrivalDistance: 0.5
+  avoidanceRadius: 3
+  avoidanceWeight: 2
+  separationRadius: 2
+  separationWeight: 1.5
   scanRange: 15
   scanResolution: 20
   scanInterval: 0.2
-  frontierSearchRadius: 20
-  searchStep: 2
+  communicationRange: 30
+  communicationInterval: 1
+  obstacleLayerMask:
+    serializedVersion: 2
+    m_Bits: 64
+  rescueTime: 3
+  groundOffset: 2
+  pathRecalculationInterval: 1
