@@ -218,7 +218,7 @@ public class Grid
 					{
 						NodeState.Free => new Color(0, 1, 0, 0.3f),
 						NodeState.Occupied => new Color(1, 0, 0, 0.5f),
-						_ => new Color(0, 0, 0, 0)
+						_ => new Color(0.5f, 0.5f, 0.5f, 0.25f)
 					};
 					Gizmos.DrawCube(center, size);
 				}

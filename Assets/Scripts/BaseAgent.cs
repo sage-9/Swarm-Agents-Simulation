@@ -44,7 +44,7 @@ public abstract class BaseAgent : MonoBehaviour
 
     public static List<BaseAgent> GetAllAgents() => _allAgents;
 
-    private Rigidbody _rb;
+    protected Rigidbody _rb;
 
     protected virtual void Start()
     {

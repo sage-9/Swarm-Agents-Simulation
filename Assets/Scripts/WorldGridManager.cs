@@ -20,9 +20,9 @@ public class WorldGridManager : MonoBehaviour
         WorldGrid = new Grid(DefaultGrid);
     }
 
-    void OnDrawGizmosSelected()
+    void OnDrawGizmos()
     {
-        if (WorldGrid == null || !drawDebug) return;
+        if (WorldGrid == null || drawDebug==false) return;
         WorldGrid.DrawDebugGrid();
     }
 }

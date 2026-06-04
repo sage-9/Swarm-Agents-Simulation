@@ -75,7 +75,7 @@ public class AgentSpawnManager : MonoBehaviour
             {
                 Vector3 spawnPos = GetRandomSpawnPosition();
                 // Ensure rescuers spawn on the ground (y=0 or whatever your ground level is)
-                spawnPos.y = 0;
+                spawnPos.y = baseStationLocation.position.y;
                 GameObject go = Instantiate(rescuerDronePrefab, spawnPos, transform.rotation);
                 RescuerDrone rescuer = go.GetComponent<RescuerDrone>();
                 if (rescuer != null)

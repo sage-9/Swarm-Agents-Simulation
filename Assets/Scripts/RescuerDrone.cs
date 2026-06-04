@@ -206,7 +206,7 @@ public class RescuerDrone : BaseAgent
     }
 
     // Optional: Draw the path for debugging
-    private void OnDrawGizmos()
+    public void OnDrawGizmos()
     {
         if (_currentPath != null && _currentPath.Count > 0)
         {

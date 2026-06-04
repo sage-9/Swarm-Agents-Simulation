@@ -20,7 +20,7 @@ public static class AStarPathfinder
     }
 
     /// <summary>
-    /// Finds a path through the provided voxel grid using A* with priority queue optimization.
+    /// Finds a path through the provided voxel grid using A*.
     /// </summary>
     public static List<Vector3> FindPath(Vector3 startPos, Vector3 targetPos, Grid droneGrid, float clearanceRadius = 1f, bool allowVerticalMovement = false, int maxIterations = 5000)
     {
@@ -36,12 +36,12 @@ public static class AStarPathfinder
         PathNode startNode = new PathNode(startIndex, startPos);
         PathNode targetNode = new PathNode(targetIndex, targetPos);
 
-        // Use priority queue for efficient minimum node extraction
-        var openSet = new PriorityQueue<PathNode, int>();
+        // Use a list to store the open set of nodes to be evaluated
+        List<PathNode> openSet = new List<PathNode>();
         HashSet<Vector3Int> closedSet = new HashSet<Vector3Int>();
         Dictionary<Vector3Int, PathNode> allNodes = new Dictionary<Vector3Int, PathNode>();
 
-        openSet.Enqueue(startNode, startNode.FCost);
+        openSet.Add(startNode);
         allNodes.Add(startIndex, startNode);
 
         int iterations = 0;
@@ -56,7 +56,16 @@ public static class AStarPathfinder
                 return new List<Vector3>(); // Prevent infinite loop / freezing
             }
 
-            PathNode currentNode = openSet.Dequeue();
+            PathNode currentNode = openSet[0];
+            for (int i = 1; i < openSet.Count; i++)
+            {
+                if (openSet[i].FCost < currentNode.FCost || 
+                   (openSet[i].FCost == currentNode.FCost && openSet[i].HCost < currentNode.HCost))
+                {
+                    currentNode = openSet[i];
+                }
+            }
+            openSet.Remove(currentNode);
             closedSet.Add(currentNode.GridIndex);
 
             // If we are close enough to the target, finish
@@ -90,7 +99,7 @@ public static class AStarPathfinder
                     neighborNode.Parent = currentNode;
 
                     if (!openSet.Contains(neighborNode))
-                        openSet.Enqueue(neighborNode, neighborNode.FCost);
+                        openSet.Add(neighborNode);
                 }
             }
         }

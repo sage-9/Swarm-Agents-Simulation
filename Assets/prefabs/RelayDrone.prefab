@@ -31,7 +31,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.35, y: 0.2, z: 0.35}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -161,6 +161,7 @@ MonoBehaviour:
   avoidanceWeight: 2
   separationRadius: 2
   separationWeight: 1.5
+  physicsAvoidanceWeight: 3
   scanRange: 15
   scanResolution: 20
   scanInterval: 0.2
@@ -170,4 +171,5 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   idealDistanceToBase: 40
+  idealDistanceToOtherAgents: 30
   baseStation: {fileID: 0}

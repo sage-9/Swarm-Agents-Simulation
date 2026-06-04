@@ -476,7 +476,7 @@ Transform:
   m_GameObject: {fileID: 407765466}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 32.14, y: 2.3, z: 33.35}
+  m_LocalPosition: {x: -1.8, y: 2.3, z: -6.48}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -674,7 +674,7 @@ MonoBehaviour:
   numberOfScoutDrones: 5
   numberOfRescueDrones: 7
   numberOfRelayDrones: 3
-  spawnInterval: 0.1
+  spawnInterval: 3
   scoutDronePrefab: {fileID: 3675125263801247610, guid: d1492fcdedc6d9d4a88aa623b27d0991, type: 3}
   rescuerDronePrefab: {fileID: 3675125263801247610, guid: 260d96efafdec47479eee8b0d6f4748d, type: 3}
   relayDronePrefab: {fileID: 3675125263801247610, guid: 3d5a1b5fd0192fc4c9fb4d40938d03d3, type: 3}
@@ -688,7 +688,7 @@ Transform:
   m_GameObject: {fileID: 1277983448}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 45, y: 2, z: 7}
+  m_LocalPosition: {x: 45, y: 4, z: 7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -723,9 +723,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 12cbedc0f06143cdb7490a21d41cf57c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WorldGridManager
-  length: 174
-  width: 150
-  height: 8
+  length: 200
+  width: 200
+  height: 10
   gridOrigin: {fileID: 1669327305}
   voxelSize: 0.5
   drawDebug: 0
@@ -738,7 +738,7 @@ Transform:
   m_GameObject: {fileID: 1669327303}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -36.53, y: 1, z: -37.28}
+  m_LocalPosition: {x: -36.878, y: 1, z: -37.66}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
