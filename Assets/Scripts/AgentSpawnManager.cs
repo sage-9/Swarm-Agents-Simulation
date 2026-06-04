@@ -24,6 +24,8 @@ public class AgentSpawnManager : MonoBehaviour
     private List<ScoutDrone> _scoutDrones = new List<ScoutDrone>();
     private List<RescuerDrone> _rescuerDrones = new List<RescuerDrone>();
     private List<RelayDrone> _relayDrones = new List<RelayDrone>();
+    
+    private HashSet<GameObject> _reportedVictims = new HashSet<GameObject>();
 
     void Awake()
     {
@@ -124,13 +126,21 @@ public class AgentSpawnManager : MonoBehaviour
     /// <summary>
     /// Swarm Interaction: When a scout finds a victim, it calls this to dispatch an idle rescuer.
     /// </summary>
-    public void RequestRescuer(Vector3 victimPosition)
+    public void RequestRescuer(GameObject victim)
     {
+        // If we have already reported this victim, do nothing.
+        if (_reportedVictims.Contains(victim))
+        {
+            return;
+        }
+        
+        _reportedVictims.Add(victim);
+        
         foreach (var rescuer in _rescuerDrones)
         {
             if (rescuer.CurrentRescuerState == RescuerDrone.RescuerState.Idle)
             {
-                rescuer.AssignVictim(victimPosition);
+                rescuer.AssignVictim(victim.transform.position);
                 return; // Only assign one rescuer per request
             }
         }

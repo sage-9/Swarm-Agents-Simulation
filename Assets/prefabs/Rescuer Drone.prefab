@@ -153,7 +153,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2072ce4e68d89a4398236fdbe890410, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RescuerDrone
-  enableDebugView: 1
+  enableDebugView: 0
   moveSpeed: 5
   turnSpeed: 120
   arrivalDistance: 0.5
@@ -170,6 +170,6 @@ MonoBehaviour:
   obstacleLayerMask:
     serializedVersion: 2
     m_Bits: 64
-  rescueTime: 3
-  groundOffset: 10
+  rescueTime: 1.5
+  groundOffset: 2
   pathRecalculationInterval: 1

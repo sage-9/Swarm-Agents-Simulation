@@ -46,7 +46,7 @@ public class ScoutDrone : BaseAgent
         {
             Debug.LogWarning($"{name} is stuck! Recalculating frontier.");
             _lastProgressTime = Time.time;
-
+            
             // If it's stuck, force a fallback leap immediately to break it out
             Vector3 randomForwardOffset = Quaternion.Euler(Random.Range(-45f, 45f), Random.Range(-90f, 90f), 0) * transform.forward;
             Vector3 escapeVector = randomForwardOffset * (frontierSearchRadius * 0.5f);
@@ -76,7 +76,7 @@ public class ScoutDrone : BaseAgent
             if (_currentPath != null && _currentPathIndex < _currentPath.Count)
             {
                 Vector3 currentWaypoint = _currentPath[_currentPathIndex];
-
+                
                 float distanceToWaypoint = Vector3.Distance(transform.position, currentWaypoint);
 
                 if (distanceToWaypoint < arrivalDistance)
@@ -97,13 +97,13 @@ public class ScoutDrone : BaseAgent
             // 3. We skip BaseAgent static obstacle avoidance since A* handles static obstacles
             // Note: We DO use the new immediate physical avoidance force defined in BaseAgent
             Vector3 physicsAvoidance = CalculateImmediatePhysicsAvoidance();
-
+            
             // 4. Dynamic agent separation
             Vector3 separationForce = CalculateAgentSeparation();
 
             // 5. Combine and Move
             Vector3 finalDirection = (targetDirection + (separationForce * separationWeight) + (physicsAvoidance * physicsAvoidanceWeight)).normalized;
-
+            
             transform.position += finalDirection * (moveSpeed * Time.deltaTime);
         }
         else
@@ -115,7 +115,7 @@ public class ScoutDrone : BaseAgent
     protected override void HandleRotation()
     {
         Vector3 targetDirection = Vector3.zero;
-
+        
         if (_currentPath != null && _currentPathIndex < _currentPath.Count)
         {
             targetDirection = _currentPath[_currentPathIndex] - transform.position;
@@ -135,17 +135,17 @@ public class ScoutDrone : BaseAgent
     private void RecalculatePath()
     {
         if (PersonalGrid == null || CurrentState != AgentState.Searching) return;
-
+        
         // Use a smaller clearance for aerial drones, and ALLOW vertical movement
-        _currentPath = AStarPathfinder.FindPath(transform.position, TargetPosition, PersonalGrid, 1.0f, true);
+        _currentPath = AStarPathfinder.FindPath(transform.position, TargetPosition, PersonalGrid, 0.5f, true);
         _currentPathIndex = 0;
         _lastPathCalculationTime = Time.time;
-
+        
         // If A* fails to find a path to the chosen frontier, find a new frontier immediately
         if (_currentPath == null || _currentPath.Count == 0)
         {
-            Debug.LogWarning($"{name} could not find path to target. Finding new frontier.");
-            StartCoroutine(FindNextFrontier());
+             Debug.LogWarning($"{name} could not find path to target. Finding new frontier.");
+             StartCoroutine(FindNextFrontier());
         }
     }
 
@@ -161,13 +161,13 @@ public class ScoutDrone : BaseAgent
     public override void OnVictimFound(GameObject victim)
     {
         Debug.Log($"Scout {name} found victim at {victim.transform.position}!");
-
+        
         // INTERFACE: Trigger the Swarm Manager to send a Rescuer
         if (AgentSpawnManager.Instance != null)
         {
-            AgentSpawnManager.Instance.RequestRescuer(victim.transform.position);
+            AgentSpawnManager.Instance.RequestRescuer(victim);
         }
-
+        
         // For your research: You might want the scout to stay 
         // until the rescuer arrives, or keep moving.
     }
@@ -179,14 +179,14 @@ public class ScoutDrone : BaseAgent
     private IEnumerator FindNextFrontier()
     {
         if (_isSearchingForFrontier) yield break;
-
+        
         _isSearchingForFrontier = true;
         Vector3Int bestNodeIndex = -Vector3Int.one;
         float bestScore = float.MaxValue;
 
         // Optimization: We only search within a local bounds to save CPU
         PersonalGrid.WorldToGrid(transform.position, out Vector3Int currentIdx);
-
+        
         int range = Mathf.RoundToInt(frontierSearchRadius / PersonalGrid.VoxelSize);
 
         // Calculate clamped bounds to avoid looping outside the grid
@@ -196,12 +196,9 @@ public class ScoutDrone : BaseAgent
         int maxY = Mathf.Min(PersonalGrid.Height, currentIdx.y + range);
         int minZ = Mathf.Max(0, currentIdx.z - range);
         int maxZ = Mathf.Min(PersonalGrid.Width, currentIdx.z + range);
-
+        
         // Push the minTargetDist out a bit further to avoid getting stuck in a loop finding the exact same frontier
-        float minTargetDist = PersonalGrid.VoxelSize * 3.0f;
-
-        // Pre-calculate random variance once per search to ensure deterministic frontier selection
-        float varianceThisSearch = Random.Range(0f, randomVariance);
+        float minTargetDist = PersonalGrid.VoxelSize * 3.0f; 
 
         // Iterate through the grid within the search range
         for (int x = minX; x < maxX; x += searchStep)
@@ -211,31 +208,33 @@ public class ScoutDrone : BaseAgent
                 for (int z = minZ; z < maxZ; z += searchStep)
                 {
                     Vector3Int checkIdx = new Vector3Int(x, y, z);
-
+                    
                     // 1. Check if node is Free
                     if (PersonalGrid.GetVoxel(checkIdx) != NodeState.Free) continue;
-
+                    
                     // 2. Check if it's a frontier (has unexplored neighbors)
-                    if (!IsFrontierNode(checkIdx)) continue;
-
+                    if (!IsFrontierNode(checkIdx))continue;
+                    
                     // Use Vector3.Distance for actual distance, SqrMagnitude makes the randomVariance math weird
                     float dist = Vector3.Distance(transform.position, PersonalGrid.GridToWorld(checkIdx));
-
+                    
                     if (dist < minTargetDist) continue;
-
-                    // Use pre-calculated variance to ensure same frontier gets same score
-                    float score = dist + varianceThisSearch;
+                    
+                    // Add random variance to the distance score.
+                    // This prevents the drone from obsessively hugging the absolute closest wall
+                    // and encourages it to push outward in larger sweeps.
+                    float score = dist + Random.Range(0f, randomVariance);
                     if (score < bestScore)
                     {
                         bestScore = score;
                         bestNodeIndex = checkIdx;
                     }
-
+                    
                 }
-
+                
             }
             // Yield every X rows to prevent frame spikes in your Unity Editor
-            if (x % 5 == 0) yield return null;
+            if (x % 5 == 0) yield return null;  
         }
 
         if (bestNodeIndex != -Vector3Int.one)
@@ -247,7 +246,7 @@ public class ScoutDrone : BaseAgent
         {
             // FALLBACK FIX: The drone has exhausted its local search radius.
             // We must leap FORWARD outside of this "cleared bubble" to find new areas.
-
+            
             // Try to pick a point generally "forward" from where it is facing
             Vector3 randomForwardOffset = Quaternion.Euler(Random.Range(-20f, 20f), Random.Range(-45f, 45f), 0) * transform.forward;
             Vector3 escapeVector = randomForwardOffset * (frontierSearchRadius * 1.5f);
@@ -275,8 +274,8 @@ public class ScoutDrone : BaseAgent
         }
         return false;
     }
-
-    private void OnDrawGizmos()
+    
+    public void OnDrawGizmos()
     {
         if (_currentPath != null && _currentPath.Count > 0)
         {

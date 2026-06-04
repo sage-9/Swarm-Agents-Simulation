@@ -206,11 +206,14 @@ public class RescuerDrone : BaseAgent
     }
 
     // Optional: Draw the path for debugging
-    public void OnDrawGizmos()
+    private void OnDrawGizmos()
     {
         if (_currentPath != null && _currentPath.Count > 0)
         {
             Gizmos.color = Color.green;
+            // Start from the drone's current position to the first waypoint
+            Gizmos.DrawLine(transform.position, _currentPath[0]);
+
             for (int i = 0; i < _currentPath.Count - 1; i++)
             {
                 Gizmos.DrawLine(_currentPath[i], _currentPath[i + 1]);

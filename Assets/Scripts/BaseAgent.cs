@@ -124,14 +124,14 @@ public abstract class BaseAgent : MonoBehaviour
     protected Vector3 CalculateImmediatePhysicsAvoidance()
     {
         Vector3 avoidanceForce = Vector3.zero;
+        
+        Collider[] hits = new Collider[5]; // Non-allocating buffer
+        int numHits = Physics.OverlapSphereNonAlloc(transform.position, avoidanceRadius * 0.5f, hits, obstacleLayerMask);
 
-        // Check a small sphere around the drone's center
-        Collider[] hits = Physics.OverlapSphere(transform.position, avoidanceRadius * 0.5f, obstacleLayerMask);
-
-        foreach (Collider hit in hits)
+        for (int i = 0; i < numHits; i++)
         {
             // Push away from the closest point on the collider
-            Vector3 closestPoint = hit.ClosestPoint(transform.position);
+            Vector3 closestPoint = hits[i].ClosestPoint(transform.position);
             float dist = Vector3.Distance(transform.position, closestPoint);
 
             if (dist < 0.01f) dist = 0.01f; // prevent division by zero
@@ -309,8 +309,9 @@ public abstract class BaseAgent : MonoBehaviour
     protected abstract void OnTargetReached();
     public abstract void OnVictimFound(GameObject victim);
 
-    public void OnDrawGizmosSelected()
+    private void OnDrawGizmosSelected()
     {
+       
         if (!enableDebugView || PersonalGrid == null) return;
         PersonalGrid.DrawDebugGrid();
 
