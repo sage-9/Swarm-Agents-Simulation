@@ -179,48 +179,13 @@ public class Grid
 					Node otherNode = otherGrid.GridData[x, y, z];
 					Node thisNode = GridData[x, y, z];
 
-					// Only consider merging if the other node actually contains mapped data
 					if (otherNode.NodeState == NodeState.Free || otherNode.NodeState == NodeState.Occupied)
 					{
-						// Adopt the other node if we haven't explored this voxel yet, OR if their data is newer
 						if (thisNode.NodeState == NodeState.Unexplored || otherNode.LastUpdatedTime > thisNode.LastUpdatedTime)
 						{
 							GridData[x, y, z] = otherNode;
 						}
 					}
-				}
-			}
-		}
-	}
-
-	///<summary>
-	/// Draws a Debug view of 3d grid showing which voxels are Explored or Occupied
-	///</summary>
-	public void DrawDebugGrid()
-	{
-		if (GridData == null) return;
-		// Cache lossy scale for performance
-		Vector3 size = Vector3.one * VoxelSize * 0.9f; // slightly smaller than voxel to avoid overlap lines
-
-		for (int x = 0; x < Length; x++)
-		{
-			for (int y = 0; y < Height; y++)
-			{
-				for (int z = 0; z < Width; z++)
-				{
-					NodeState state = GridData[x, y, z].NodeState;
-					if (state == NodeState.Unknown || state == NodeState.Unexplored)
-						continue; // optionally draw unknown as transparent
-
-					Vector3 center = GridToWorld(new Vector3Int(x, y, z));
-
-					Gizmos.color = state switch
-					{
-						NodeState.Free => new Color(0, 1, 0, 0.3f),
-						NodeState.Occupied => new Color(1, 0, 0, 0.5f),
-						_ => new Color(0.5f, 0.5f, 0.5f, 0.25f)
-					};
-					Gizmos.DrawCube(center, size);
 				}
 			}
 		}

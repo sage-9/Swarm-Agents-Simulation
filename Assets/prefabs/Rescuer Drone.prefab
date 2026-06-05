@@ -14,6 +14,11 @@ GameObject:
   - component: {fileID: 1576157938407517338}
   - component: {fileID: 5503328665016989834}
   - component: {fileID: 846682181501455669}
+  - component: {fileID: 3272806082731124651}
+  - component: {fileID: 3320514427203870577}
+  - component: {fileID: 5348053120998536495}
+  - component: {fileID: 4753840681962665857}
+  - component: {fileID: -8064246667684948189}
   m_Layer: 0
   m_Name: Rescuer Drone
   m_TagString: Untagged
@@ -156,7 +161,7 @@ MonoBehaviour:
   enableDebugView: 0
   moveSpeed: 5
   turnSpeed: 120
-  arrivalDistance: 0.5
+  arrivalDistance: 69
   avoidanceRadius: 3
   avoidanceWeight: 2
   separationRadius: 2
@@ -172,4 +177,85 @@ MonoBehaviour:
     m_Bits: 64
   rescueTime: 1.5
   groundOffset: 2
+--- !u!114 &3272806082731124651
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3675125263801247610}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a405dfd092a03ba45b79fc7f0fce3180, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MovementSystem
+  moveSpeed: 5
+  turnSpeed: 120
+--- !u!114 &3320514427203870577
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3675125263801247610}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f21f6015b6bbd7a479d8295c0a0306eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AvoidanceSystem
+  avoidanceRadius: 2.5
+  avoidanceWeight: 2
+  separationRadius: 2
+  separationWeight: 1.5
+  physicsAvoidanceWeight: 3
+  obstacleLayerMask:
+    serializedVersion: 2
+    m_Bits: 64
+--- !u!114 &5348053120998536495
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3675125263801247610}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f54fa5121e5f38240a6b232de1b34040, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SensingSystem
+  scanRange: 15
+  scanResolution: 20
+  scanInterval: 0.2
+  obstacleLayerMask:
+    serializedVersion: 2
+    m_Bits: 64
+--- !u!114 &4753840681962665857
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3675125263801247610}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4491bdaa0f7d6304d93594d97da0835c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CommunicationSystem
+  communicationRange: 30
+  communicationInterval: 1
+  obstacleLayerMask:
+    serializedVersion: 2
+    m_Bits: 64
+--- !u!114 &-8064246667684948189
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3675125263801247610}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8dda05c9814b65946bae7bc7abcabe73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PathFollower
   pathRecalculationInterval: 1
