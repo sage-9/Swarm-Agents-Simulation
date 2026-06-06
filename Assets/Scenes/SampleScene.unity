@@ -476,7 +476,7 @@ Transform:
   m_GameObject: {fileID: 407765466}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 32.14, y: 2.3, z: 33.35}
+  m_LocalPosition: {x: 28.14, y: 2.3, z: 7.46}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -642,6 +642,55 @@ Transform:
   - {fileID: 2559811208671972505}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &880908781
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 880908783}
+  - component: {fileID: 880908782}
+  m_Layer: 0
+  m_Name: Telemetry
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &880908782
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 880908781}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9806d1f6ede98a49bbb8eb5d5828559, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SimulationTelemetry
+  outputDirectory: SimulationData
+  sessionName: Simulation
+  autoStartTracking: 1
+  samplingInterval: 1
+  timeToActivateSystemFailureInSeconds: 240
+--- !u!4 &880908783
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 880908781}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 34.98621, y: 1.404, z: 11.06679}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1277983448
 GameObject:
   m_ObjectHideFlags: 0
@@ -671,13 +720,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc6f71daf4784be9b9181bfe2abd5c95, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AgentSpawnManager
-  numberOfScoutDrones: 5
-  numberOfRescueDrones: 7
-  numberOfRelayDrones: 3
   spawnInterval: 0.1
-  scoutDronePrefab: {fileID: 3675125263801247610, guid: d1492fcdedc6d9d4a88aa623b27d0991, type: 3}
-  rescuerDronePrefab: {fileID: 3675125263801247610, guid: 260d96efafdec47479eee8b0d6f4748d, type: 3}
-  relayDronePrefab: {fileID: 3675125263801247610, guid: 3d5a1b5fd0192fc4c9fb4d40938d03d3, type: 3}
+  droneConfigs:
+  - prefab: {fileID: 3675125263801247610, guid: d1492fcdedc6d9d4a88aa623b27d0991, type: 3}
+    count: 5
+    yOffset: 0
+    typeKey: Scout Drone
+  - prefab: {fileID: 3675125263801247610, guid: 260d96efafdec47479eee8b0d6f4748d, type: 3}
+    count: 7
+    yOffset: 0
+    typeKey: Rescuer Drone
+  - prefab: {fileID: 3675125263801247610, guid: 3d5a1b5fd0192fc4c9fb4d40938d03d3, type: 3}
+    count: 3
+    yOffset: 0
+    typeKey: Relay Drone
   baseStationLocation: {fileID: 1277983450}
 --- !u!4 &1277983450
 Transform:
@@ -694,6 +750,56 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+--- !u!1 &1370951892
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1370951894}
+  - component: {fileID: 1370951893}
+  m_Layer: 0
+  m_Name: DroneDisabler
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1370951893
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1370951892}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eba353dc8c516894c891651d401f8527, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DroneDisabler
+  disablePercentage: 33
+  randomizeSelection: 1
+  targetDroneTypes:
+  - Scout
+  - Rescuer
+  - Relay
+--- !u!4 &1370951894
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1370951892}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 34.98621, y: 1.404, z: 11.06679}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1669327303
 GameObject:
   m_ObjectHideFlags: 0
@@ -704,6 +810,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1669327305}
   - component: {fileID: 1669327304}
+  - component: {fileID: 1669327306}
   m_Layer: 0
   m_Name: Grid
   m_TagString: Untagged
@@ -744,6 +851,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1669327306
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1669327303}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67d4164e5ef787d40840de5db09ab59b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GridVisualizer
 --- !u!4 &116769004712225330
 Transform:
   m_ObjectHideFlags: 0
@@ -4288,3 +4407,5 @@ SceneRoots:
   - {fileID: 407765470}
   - {fileID: 1669327305}
   - {fileID: 1277983450}
+  - {fileID: 1370951894}
+  - {fileID: 880908783}

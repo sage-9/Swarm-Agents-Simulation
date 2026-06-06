@@ -298,4 +298,9 @@ public class SimulationTelemetry : MonoBehaviour
     {
         return DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
     }
+
+    private void OnDisable()
+    {
+        StopAndExport();
+    }
 }

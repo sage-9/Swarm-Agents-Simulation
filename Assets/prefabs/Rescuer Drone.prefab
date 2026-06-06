@@ -161,7 +161,7 @@ MonoBehaviour:
   enableDebugView: 0
   moveSpeed: 5
   turnSpeed: 120
-  arrivalDistance: 69
+  arrivalDistance: 3
   avoidanceRadius: 3
   avoidanceWeight: 2
   separationRadius: 2
