@@ -205,7 +205,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AvoidanceSystem
   avoidanceRadius: 3
   avoidanceWeight: 2
-  separationRadius: 2
+  separationRadius: 0.5
   separationWeight: 1.5
   physicsAvoidanceWeight: 3
   obstacleLayerMask:

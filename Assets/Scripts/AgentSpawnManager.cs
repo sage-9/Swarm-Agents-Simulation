@@ -118,7 +118,7 @@ public class AgentSpawnManager : MonoBehaviour
 
     private Vector3 GetRandomSpawnPosition()
     {
-        Vector3 randomOffset = new Vector3(Random.Range(-5f, 5f), 0, Random.Range(-5f, 5f));
+        Vector3 randomOffset = new Vector3(Random.Range(-3f, 3f), 0, Random.Range(-3f, 3f));
         return baseStationLocation.position + randomOffset;
     }
 
@@ -131,11 +131,8 @@ public class AgentSpawnManager : MonoBehaviour
        
         if (_reportedVictims.Contains(victim))
             return;
-        
-        Debug.Log("Checking for available drones");
         if (_dronesByType.TryGetValue("Rescuer", out var rescuers))
         {
-            Debug.Log("Rescuers found");
             foreach (var drone in rescuers)
             {
                 if (drone is IAssignable assignable && drone.CurrentState == BaseAgent.AgentState.Idle)
@@ -146,7 +143,7 @@ public class AgentSpawnManager : MonoBehaviour
                     return;
                 }
             }
-            Debug.Log("No drones found");
+           
         }
 
         Debug.LogWarning("No idle rescuer drones available to dispatch!");

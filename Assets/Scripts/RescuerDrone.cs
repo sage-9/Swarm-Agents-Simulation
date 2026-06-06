@@ -45,7 +45,7 @@ public class RescuerDrone : BaseAgent, IAssignable
     {
         float distanceToFinalTarget = Vector3.Distance(transform.position, TargetPosition);
 
-        if (distanceToFinalTarget > arrivalDistance)
+        if (distanceToFinalTarget >= arrivalDistance)
         {
             if (_pathFollower.ShouldRecalculate())
             {
@@ -62,12 +62,13 @@ public class RescuerDrone : BaseAgent, IAssignable
                 float distanceToWaypoint = Vector3.Distance(new Vector3(transform.position.x, 0, transform.position.z),
                                                             new Vector3(currentWaypoint.x, 0, currentWaypoint.z));
 
-                if (distanceToWaypoint < arrivalDistance)
+                if (distanceToWaypoint < 0.1)
                 {
                     _pathFollower.AdvanceToNextWaypoint();
                 }
                 else
                 {
+                    
                     targetDirection = (currentWaypoint - transform.position).normalized;
                 }
             }
@@ -85,6 +86,7 @@ public class RescuerDrone : BaseAgent, IAssignable
         }
         else
         {
+            Debug.Log("Victim reached");
             OnTargetReached();
         }
     }

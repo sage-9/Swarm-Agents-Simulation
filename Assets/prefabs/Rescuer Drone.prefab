@@ -161,10 +161,10 @@ MonoBehaviour:
   enableDebugView: 0
   moveSpeed: 5
   turnSpeed: 120
-  arrivalDistance: 3
+  arrivalDistance: 1.5
   avoidanceRadius: 3
   avoidanceWeight: 2
-  separationRadius: 2
+  separationRadius: 0.5
   separationWeight: 1.5
   physicsAvoidanceWeight: 3
   scanRange: 15
@@ -205,7 +205,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AvoidanceSystem
   avoidanceRadius: 2.5
   avoidanceWeight: 2
-  separationRadius: 2
+  separationRadius: 0.5
   separationWeight: 1.5
   physicsAvoidanceWeight: 3
   obstacleLayerMask:
