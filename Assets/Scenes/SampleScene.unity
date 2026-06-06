@@ -725,15 +725,15 @@ MonoBehaviour:
   - prefab: {fileID: 3675125263801247610, guid: d1492fcdedc6d9d4a88aa623b27d0991, type: 3}
     count: 5
     yOffset: 0
-    typeKey: Scout Drone
+    typeKey: Scout
   - prefab: {fileID: 3675125263801247610, guid: 260d96efafdec47479eee8b0d6f4748d, type: 3}
     count: 7
     yOffset: 0
-    typeKey: Rescuer Drone
+    typeKey: Rescuer
   - prefab: {fileID: 3675125263801247610, guid: 3d5a1b5fd0192fc4c9fb4d40938d03d3, type: 3}
     count: 3
     yOffset: 0
-    typeKey: Relay Drone
+    typeKey: Relay
   baseStationLocation: {fileID: 1277983450}
 --- !u!4 &1277983450
 Transform:

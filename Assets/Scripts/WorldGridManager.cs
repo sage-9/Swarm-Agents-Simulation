@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 public class WorldGridManager : MonoBehaviour
@@ -38,8 +37,7 @@ public class WorldGridManager : MonoBehaviour
         if (WorldGrid == null) return;
 
         // Find all active agents in the scene
-        ScoutDrone[] allAgents = FindObjectsByType<ScoutDrone>();
-        
+        BaseAgent[] allAgents = AgentSpawnManager.Instance.GetDronesByType("Scout").ToArray();
         foreach (ScoutDrone agent in allAgents)
         {
             if (agent.PersonalGrid != null)

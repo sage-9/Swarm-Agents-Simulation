@@ -105,8 +105,6 @@ public class AgentSpawnManager : MonoBehaviour
 
                 if (agent is RelayDrone relay && baseStationLocation != null)
                     relay.baseStation = baseStationLocation;
-
-                Debug.Log($"Spawned {config.typeKey} #{i + 1}");
             }
             else
             {
@@ -130,21 +128,25 @@ public class AgentSpawnManager : MonoBehaviour
     /// </summary>
     public void RequestRescuer(GameObject victim)
     {
+       
         if (_reportedVictims.Contains(victim))
             return;
-
-        _reportedVictims.Add(victim);
-
+        
+        Debug.Log("Checking for available drones");
         if (_dronesByType.TryGetValue("Rescuer", out var rescuers))
         {
+            Debug.Log("Rescuers found");
             foreach (var drone in rescuers)
             {
-                if (drone is IAssignable assignable && drone.enabled)
+                if (drone is IAssignable assignable && drone.CurrentState == BaseAgent.AgentState.Idle)
                 {
                     assignable.AssignTarget(victim.transform.position);
+                    Debug.Log("Assigned to Rescue");
+                    _reportedVictims.Add(victim);
                     return;
                 }
             }
+            Debug.Log("No drones found");
         }
 
         Debug.LogWarning("No idle rescuer drones available to dispatch!");

@@ -91,7 +91,6 @@ public abstract class BaseAgent : MonoBehaviour
     protected virtual void Update()
     {
         if (CurrentState == AgentState.Idle) return;
-
         HandleMovement();
         HandleRotation();
     }

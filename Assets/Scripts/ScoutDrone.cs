@@ -95,9 +95,9 @@ public class ScoutDrone : BaseAgent, IExplorer
 
             Vector3 physicsAvoidance = GetComponent<AvoidanceSystem>().GetAvoidanceForces(transform.position, GetAllAgents());
 
-            Vector3 finalDirection = (targetDirection + (physicsAvoidance)).normalized;
+            Vector3 finalDirection = targetDirection + physicsAvoidance;
 
-            GetComponent<MovementSystem>().Move(finalDirection, moveSpeed);
+            GetComponent<MovementSystem>().Move(finalDirection.normalized, moveSpeed);
         }
         else
         {
@@ -128,7 +128,7 @@ public class ScoutDrone : BaseAgent, IExplorer
     {
         if (PersonalGrid == null || CurrentState != AgentState.Searching) return;
 
-        List<Vector3> path = AStarPathfinder.FindPath(transform.position, TargetPosition, PersonalGrid, 0.5f, true);
+        List<Vector3> path = AStarPathfinder.FindPath(transform.position, TargetPosition, PersonalGrid, 2, true);
         _pathFollower.SetPath(path);
 
         if (!_pathFollower.HasPath)

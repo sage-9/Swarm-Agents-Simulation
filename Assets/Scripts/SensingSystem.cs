@@ -64,7 +64,7 @@ public class SensingSystem : MonoBehaviour
         {
             if (hit.collider.CompareTag("Victim"))
             {
-                SimulationTelemetry telemetry = FindObjectOfType<SimulationTelemetry>();
+                SimulationTelemetry telemetry = FindAnyObjectByType<SimulationTelemetry>();
                 if (telemetry != null)
                 {
                     telemetry.RecordVictimDiscovered(hit.collider.gameObject, hit.point);

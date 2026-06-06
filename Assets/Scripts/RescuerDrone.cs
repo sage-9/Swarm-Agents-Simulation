@@ -120,8 +120,11 @@ public class RescuerDrone : BaseAgent, IAssignable
 
     public void AssignVictim(Vector3 victimPosition)
     {
+        Debug.Log("Assigning drone");
         if (!_stateMachine.IsInState(RescuerState.Idle))
-            return;
+        {
+            Debug.Log("Drone wasn't assigned");
+        }
 
         _victimPosition = victimPosition;
         _victimPosition.y = groundOffset;

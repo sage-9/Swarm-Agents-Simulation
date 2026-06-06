@@ -175,7 +175,7 @@ MonoBehaviour:
   obstacleLayerMask:
     serializedVersion: 2
     m_Bits: 64
-  rescueTime: 1.5
+  rescueTime: 3
   groundOffset: 2
 --- !u!114 &3272806082731124651
 MonoBehaviour:

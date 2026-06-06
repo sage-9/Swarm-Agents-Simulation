@@ -205,9 +205,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f21f6015b6bbd7a479d8295c0a0306eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AvoidanceSystem
-  avoidanceRadius: 1.5
+  avoidanceRadius: 1
   avoidanceWeight: 2
-  separationRadius: 1
+  separationRadius: 0.5
   separationWeight: 1.5
   physicsAvoidanceWeight: 3
   obstacleLayerMask:
