@@ -10,4 +10,6 @@ public interface IAssignable
     /// Assigns a target position to this agent.
     /// </summary>
     void AssignTarget(Vector3 targetPosition);
+    
+    void AssignTarget(GameObject targetObject);
 }

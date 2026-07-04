@@ -137,7 +137,7 @@ public class AgentSpawnManager : MonoBehaviour
             {
                 if (drone is IAssignable assignable && drone.CurrentState == BaseAgent.AgentState.Idle)
                 {
-                    assignable.AssignTarget(victim.transform.position);
+                    assignable.AssignTarget(victim);
                     Debug.Log("Assigned to Rescue");
                     _reportedVictims.Add(victim);
                     return;

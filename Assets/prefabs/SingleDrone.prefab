@@ -12,14 +12,14 @@ GameObject:
   - component: {fileID: 2514078768820464192}
   - component: {fileID: 3024614207177521778}
   - component: {fileID: 1576157938407517338}
-  - component: {fileID: 4475073291644632687}
-  - component: {fileID: 4908727485775365074}
-  - component: {fileID: 3272806082731124651}
-  - component: {fileID: 3320514427203870577}
-  - component: {fileID: 5348053120998536495}
-  - component: {fileID: 4753840681962665857}
+  - component: {fileID: 2961467234315827321}
+  - component: {fileID: 3965972435305653838}
+  - component: {fileID: -6909702526793217862}
+  - component: {fileID: 669552410979055091}
+  - component: {fileID: -536605890671908661}
+  - component: {fileID: 8235100855336094838}
   m_Layer: 0
-  m_Name: RelayDrone
+  m_Name: SingleDrone
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -35,8 +35,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.275, z: 0.5}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.75, y: 0.375, z: 0.75}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -73,7 +73,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 26ba70e9231e9474286f0e3cffb55aef, type: 2}
+  - {fileID: 2100000, guid: bab66dbccdd361649bb60c31f6272086, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -118,7 +118,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!54 &4475073291644632687
+--- !u!54 &2961467234315827321
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -145,7 +145,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &4908727485775365074
+--- !u!114 &3965972435305653838
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -154,14 +154,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 3675125263801247610}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c6c98f9a68d9d7044b2940de645bd355, type: 3}
+  m_Script: {fileID: 11500000, guid: 17915bc8135f8f54db17b774a70f57db, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RelayDrone
+  m_EditorClassIdentifier: Assembly-CSharp::MonolithicDrone
   enableDebugView: 0
   moveSpeed: 5
   turnSpeed: 120
-  arrivalDistance: 0.5
-  avoidanceRadius: 3
+  arrivalDistance: 1
+  avoidanceRadius: 1
   avoidanceWeight: 2
   separationRadius: 2
   separationWeight: 1.5
@@ -174,10 +174,12 @@ MonoBehaviour:
   obstacleLayerMask:
     serializedVersion: 2
     m_Bits: 64
-  idealDistanceToBase: 40
-  idealDistanceToOtherAgents: 30
-  baseStation: {fileID: 0}
---- !u!114 &3272806082731124651
+  informationGainRadius: 5
+  weightDistance: 1
+  weightInformation: 5
+  upgradedScanRange: 30
+  upgradedScanResolution: 50
+--- !u!114 &-6909702526793217862
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -191,7 +193,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MovementSystem
   moveSpeed: 5
   turnSpeed: 120
---- !u!114 &3320514427203870577
+--- !u!114 &669552410979055091
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -203,15 +205,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f21f6015b6bbd7a479d8295c0a0306eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AvoidanceSystem
-  avoidanceRadius: 3
+  avoidanceRadius: 2
   avoidanceWeight: 2
-  separationRadius: 0.5
+  separationRadius: 2
   separationWeight: 1.5
   physicsAvoidanceWeight: 3
   obstacleLayerMask:
     serializedVersion: 2
     m_Bits: 64
---- !u!114 &5348053120998536495
+--- !u!114 &-536605890671908661
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -229,7 +231,7 @@ MonoBehaviour:
   obstacleLayerMask:
     serializedVersion: 2
     m_Bits: 64
---- !u!114 &4753840681962665857
+--- !u!114 &8235100855336094838
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

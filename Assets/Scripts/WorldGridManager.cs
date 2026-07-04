@@ -37,8 +37,8 @@ public class WorldGridManager : MonoBehaviour
         if (WorldGrid == null) return;
 
         // Find all active agents in the scene
-        BaseAgent[] allAgents = AgentSpawnManager.Instance.GetDronesByType("Scout").ToArray();
-        foreach (ScoutDrone agent in allAgents)
+        BaseAgent[] allAgents = AgentSpawnManager.Instance.GetAllDrones().ToArray();
+        foreach (BaseAgent agent in allAgents)
         {
             if (agent.PersonalGrid != null)
             {

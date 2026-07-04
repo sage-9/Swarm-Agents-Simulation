@@ -15,6 +15,7 @@ public class RescuerDrone : BaseAgent, IAssignable
     private Vector3 _victimPosition;
     private Vector3 _startPosition;
     private bool _isRescuing;
+    private GameObject _currentVictim;
 
     private PathFollower _pathFollower;
     private StateMachine<RescuerState> _stateMachine;
@@ -62,7 +63,7 @@ public class RescuerDrone : BaseAgent, IAssignable
                 float distanceToWaypoint = Vector3.Distance(new Vector3(transform.position.x, 0, transform.position.z),
                                                             new Vector3(currentWaypoint.x, 0, currentWaypoint.z));
 
-                if (distanceToWaypoint < 0.1)
+                if (distanceToWaypoint < arrivalDistance-2.5)
                 {
                     _pathFollower.AdvanceToNextWaypoint();
                 }
@@ -116,19 +117,20 @@ public class RescuerDrone : BaseAgent, IAssignable
     {
         if (PersonalGrid == null) return;
 
-        List<Vector3> path = AStarPathfinder.FindPath(transform.position, TargetPosition, PersonalGrid, 0.75f, false);
+        List<Vector3> path = AStarPathfinder.FindPath(transform.position, TargetPosition, PersonalGrid, 3, false);
         _pathFollower.SetPath(path);
     }
 
-    public void AssignVictim(Vector3 victimPosition)
+    public void AssignVictim(GameObject victim)
     {
         Debug.Log("Assigning drone");
+        _currentVictim = victim;
         if (!_stateMachine.IsInState(RescuerState.Idle))
         {
             Debug.Log("Drone wasn't assigned");
         }
 
-        _victimPosition = victimPosition;
+        _victimPosition = victim.transform.position;
         _victimPosition.y = groundOffset;
 
         SetTarget(_victimPosition);
@@ -137,9 +139,14 @@ public class RescuerDrone : BaseAgent, IAssignable
         Debug.Log($"{name} assigned to rescue victim at {_victimPosition}.");
     }
 
+    public void AssignTarget(GameObject victim)
+    {
+        AssignVictim(victim);
+    }
+
     public void AssignTarget(Vector3 targetPosition)
     {
-        AssignVictim(targetPosition);
+        return;
     }
 
     protected override void OnTargetReached()
@@ -191,7 +198,7 @@ public class RescuerDrone : BaseAgent, IAssignable
         SimulationTelemetry telemetry = FindObjectOfType<SimulationTelemetry>();
         if (telemetry != null)
         {
-            telemetry.RecordVictimRescued(null, transform.position);
+            telemetry.RecordVictimRescued(_currentVictim, transform.position);
         }
 
         Debug.Log($"{name} has finished rescue. Returning to base.");
@@ -199,6 +206,7 @@ public class RescuerDrone : BaseAgent, IAssignable
         _stateMachine.TransitionTo(RescuerState.ReturningToBase);
         RecalculatePath();
         _isRescuing = false;
+        Destroy(_currentVictim,1);
     }
 
     public override void OnVictimFound(GameObject victim)
